@@ -15,21 +15,15 @@ class AbrigoAnimais {
     return inputString.split(',').map(item => item.trim()).filter(Boolean);
   }
 
-  /**
-   * CORREÇÃO ESTÁ AQUI DENTRO
-   * Verifica se uma pessoa tem os pré-requisitos para adotar um animal específico.
-   */
   _podeAdotar(pessoa, animal) {
     if (pessoa.animaisAdotados.length >= 3) {
       return false;
     }
 
     for (const brinquedo of animal.brinquedos) {
-      // Verifica se a pessoa tem o brinquedo
       if (!pessoa.brinquedos.has(brinquedo)) {
         return false;
       }
-      // CORREÇÃO: Verifica se o brinquedo já foi "usado" por um gato adotado anteriormente
       if (pessoa.brinquedosDeGatosUsados.has(brinquedo)) {
         return false;
       }
@@ -40,8 +34,19 @@ class AbrigoAnimais {
 
   encontraPessoas(brinquedosPessoa1, brinquedosPessoa2, ordemAnimais) {
     const listaAnimaisConsiderados = this._parseInputString(ordemAnimais);
-    const brinquedosP1 = new Set(this._parseInputString(brinquedosPessoa1));
-    const brinquedosP2 = new Set(this._parseInputString(brinquedosPessoa2));
+    
+    // LÓGICA ADICIONADA PARA VERIFICAR BRINQUEDOS DUPLICADOS
+    const brinquedosP1Array = this._parseInputString(brinquedosPessoa1);
+    const brinquedosP2Array = this._parseInputString(brinquedosPessoa2);
+
+    if (new Set(brinquedosP1Array).size < brinquedosP1Array.length || 
+        new Set(brinquedosP2Array).size < brinquedosP2Array.length) {
+      return { erro: 'Brinquedo inválido' };
+    }
+    // FIM DA LÓGICA ADICIONADA
+
+    const brinquedosP1 = new Set(brinquedosP1Array);
+    const brinquedosP2 = new Set(brinquedosP2Array);
 
     for (const nomeAnimal of listaAnimaisConsiderados) {
       if (!this.animaisDisponiveis.has(nomeAnimal)) {

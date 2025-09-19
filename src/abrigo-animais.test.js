@@ -2,6 +2,7 @@ import { AbrigoAnimais } from "./abrigo-animais";
 
 describe('Abrigo de Animais', () => {
 
+  // Testes originais
   test('Deve rejeitar animal inválido', () => {
     const resultado = new AbrigoAnimais().encontraPessoas('CAIXA,RATO', 'RATO,BOLA', 'Lulu');
     expect(resultado.erro).toBe('Animal inválido');
@@ -28,4 +29,35 @@ describe('Abrigo de Animais', () => {
       expect(resultado.lista.length).toBe(4);
       expect(resultado.erro).toBeFalsy();
   });
+
+  // --- NOVOS TESTES PARA ROBUSTEZ ---
+
+  test('Deve rejeitar lista de brinquedos com duplicatas', () => {
+    const resultado = new AbrigoAnimais().encontraPessoas('RATO,BOLA,RATO', 'NOVELO', 'Rex');
+    expect(resultado.erro).toBe('Brinquedo inválido');
+  });
+
+  test('Não deve permitir que uma pessoa adote mais de 3 animais', () => {
+    const resultado = new AbrigoAnimais().encontraPessoas(
+      'RATO,BOLA,CAIXA,NOVELO,LASER', 
+      '', 
+      'Rex,Bola,Bebe,Zero' 
+    );
+    expect(resultado.lista).toContain('Bebe - pessoa 1');
+    expect(resultado.lista).toContain('Bola - pessoa 1');
+    expect(resultado.lista).toContain('Rex - pessoa 1');
+    expect(resultado.lista).toContain('Zero - abrigo'); // O quarto animal fica no abrigo
+  });
+
+  test('Deve mover animal para o abrigo em caso de empate', () => {
+    const resultado = new AbrigoAnimais().encontraPessoas('RATO,BOLA', 'RATO,BOLA', 'Rex');
+    expect(resultado.lista).toContain('Rex - abrigo');
+  });
+
+  test('A ordem de adoção dos gatos deve impactar a disponibilidade de brinquedos', () => {
+    const resultado = new AbrigoAnimais().encontraPessoas('BOLA,LASER,RATO', '', 'Mimi,Zero');
+    expect(resultado.lista).toContain('Mimi - pessoa 1');
+    expect(resultado.lista).toContain('Zero - abrigo'); // Zero não pode ser adotado pois Mimi usou a BOLA.
+  });
+
 });
